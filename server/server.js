@@ -30,16 +30,21 @@ app.post('/api/submit-form', async (req, res) => {
 // API for the waitlist form
 app.post('/api/submit-waitlist', async (req, res) => {
     try {
-        const { email, questions } = req.body;
+        const { email, telegram, questions } = req.body;
         
         // Checking required fields
         if (!email) {
             return res.status(400).json({ success: false, error: 'Email is required' });
         }
+
+        if (!telegram) {
+            return res.status(400).json({ success: false, error: 'Telegram username is required' });
+        }
         
         // Creating a database record
         const waitlistEntry = new WaitlistEntry({
             email,
+            telegram,
             questions,
             ipAddress: req.ip,
             userAgent: req.headers['user-agent']

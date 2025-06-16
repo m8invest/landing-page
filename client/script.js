@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Collecting form data
         const formData = {
             email: document.getElementById('email').value,
+            telegram: document.getElementById('telegram').value,
             questions: []
         };
         

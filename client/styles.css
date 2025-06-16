@@ -211,6 +211,10 @@ li:before {
     margin-bottom: 42px;
 }
 
+.form-group:first-child {
+    margin-bottom: 22px;
+}
+
 .form-group label {
     display: block;
     margin-bottom: 12px;

@@ -22,6 +22,12 @@ const WaitlistEntrySchema = new mongoose.Schema({
         trim: true,
         lowercase: true
     },
+    telegram: {
+        type: String,
+        required: true,
+        trim: true,
+        lowercase: true
+    },
     questions: [QuestionAnswerSchema],
     submittedAt: {
         type: Date,
