@@ -75,6 +75,10 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.classList.remove('selected');
         });
         
+        // Clear any validation error states
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
+        
        // We also reset scroll when closing to prepare for next opening
         setTimeout(resetModalScroll, 100);
     };
@@ -99,6 +103,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const parentQuestion = this.closest('.question');
             const siblings = parentQuestion.querySelectorAll('.option-btn');
             
+            // Remove any error highlighting when an option is selected
+            parentQuestion.classList.remove('error-highlight');
+            const errorMsg = parentQuestion.querySelector('.error-message');
+            if (errorMsg) errorMsg.remove();
+            
             // If this is question 6, allow multiple selection
             if (parentQuestion.querySelector('.question-number').textContent === '6') {
                 this.classList.toggle('selected');
@@ -110,20 +119,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Remove error on textarea input
+    document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            const parentQuestion = this.closest('.question');
+            parentQuestion.classList.remove('error-highlight');
+            const errorMsg = parentQuestion.querySelector('.error-message');
+            if (errorMsg) errorMsg.remove();
+        });
+    });
+    
+    // Remove error on email input
+    document.getElementById('email').addEventListener('input', function() {
+        const emailContainer = this.closest('.form-group');
+        emailContainer.classList.remove('error-highlight');
+        const errorMsg = emailContainer.querySelector('.error-message');
+        if (errorMsg) errorMsg.remove();
+    });
+    
     // Processing form submission
     const form = document.getElementById('waitlistForm');
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
+        // Clear previous error messages
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+        document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
+        
+        let isValid = true;
+        
+        // Validate email
+        const emailInput = document.getElementById('email');
+        const emailValue = emailInput.value.trim();
+        if (!emailValue) {
+            showValidationError(emailInput.closest('.form-group'), 'Email is required');
+            isValid = false;
+        }
+        
+        // Validate all questions
+        const questions = document.querySelectorAll('.question');
+        questions.forEach(question => {
+            const questionNumber = question.querySelector('.question-number').textContent;
+            
+            // For questions with text field
+            if (questionNumber === '9') {
+                const textarea = question.querySelector('textarea');
+                if (!textarea.value.trim()) {
+                    showValidationError(question, 'Please answer this question');
+                    isValid = false;
+                }
+            } else {
+                // For questions with answer options
+                const selectedOptions = question.querySelectorAll('.option-btn.selected');
+                if (selectedOptions.length === 0) {
+                    showValidationError(question, 'Please select an answer');
+                    isValid = false;
+                }
+            }
+        });
+        
+        if (!isValid) {
+            // Scroll to the first error
+            const firstError = document.querySelector('.error-highlight');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+        
         // Collecting form data
         const formData = {
-            email: document.getElementById('email').value,
+            email: emailValue,
             telegram: document.getElementById('telegram').value,
             questions: []
         };
         
         // Collecting answers to all questions
-        const questions = document.querySelectorAll('.question');
         questions.forEach(question => {
             const questionNumber = question.querySelector('.question-number').textContent;
             const questionText = question.querySelector('p').textContent;
@@ -185,4 +256,17 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = false;
         }
     });
+    
+    // Helper function to show validation errors
+    function showValidationError(element, message) {
+        element.classList.add('error-highlight');
+        
+        // Create error message if it doesn't exist
+        if (!element.querySelector('.error-message')) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            element.appendChild(errorDiv);
+        }
+    }
 });

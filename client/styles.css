@@ -518,3 +518,15 @@ li:before {
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+.error-message {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.form-group.error-highlight input,
+.question.error-highlight textarea {
+    border-color: #f44336 !important;
+}
